@@ -27,17 +27,28 @@ defmodule DotsAndBoxes.Game do
   end
 
   def select(game, dot_id) do
-    if(game.active_dot == 0) do
-      adjacent_dots = get_adjacent_dots(dot_id, game.rows, game.cols)
-      %{game | active_dot: dot_id, adjacent_dots: adjacent_dots}
-    else
-      %{game | active_dot: 0, adjacent_dots: []}
+    #    4 Conditions
+    #    1. No active
+    #    2. Remove current active
+    #    3. Adjacent clicked
+    #    4. Reject other clicks than adjacent
+    cond do
+      (game.active_dot == 0) ->
+        adjacent_dots = get_adjacent_dots(dot_id, game.rows, game.cols)
+        %{game | active_dot: dot_id, adjacent_dots: adjacent_dots}
+      (game.active_dot == dot_id) ->
+        %{game | active_dot: 0, adjacent_dots: []}
+      (Enum.member?(game.adjacent_dots, dot_id)) ->
+        # TODO
+        %{game | active_dot: 0, adjacent_dots: []}
+      (true) ->
+        game
     end
   end
 
   def get_adjacent_dots(dot_id, rows, cols) do
     max_dots = rows * cols
-    {id, ""} = Integer.parse(dot_id)
+    id = dot_id
     []
     |> add_to_list(rem(id, cols) != 1, [id - 1])
     |> add_to_list(rem(id, cols) != 0, [id + 1])

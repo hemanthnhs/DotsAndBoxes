@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {Stage, Layer, Circle} from 'react-konva';
 import _ from 'lodash';
 
 export default function game_init(root, channel) {
@@ -21,35 +22,48 @@ class Starter extends React.Component {
     }
 
     got_view(view) {
-        console.log("new view", view.game.adjacent_dots);
+        console.log("new view", view.game);
         this.setState({game: view.game});
     }
 
     handleClick(ev) {
-        let s = this.state.game;
-        s.active_dot = ev.target.id;
-        this.channel.push("select", {dot_id: ev.target.id})
+        console.log(ev.target.attrs);
+        this.channel.push("select", {dot_id: ev.target.attrs.id})
             .receive("ok", this.got_view.bind(this));
-        this.setState({game: s})
+    }
+
+    getFillColor(game, ind){
+        if(game.active_dot == ind){
+            return "green"
+        }
+        if(game.adjacent_dots.includes(ind)){
+            return "blue"
+        }
+        return "black"
     }
 
     renderBoard(game) {
         let m_dots = game.rows;
         let n_dots = game.cols;
         let fromServer = {1: (2), 2: {}, 3: {}, 4: {}}
-        let ind = 0;
+        let ind = 1;
         let rows = []
         for (let i = 1; i <= m_dots; i++) {
-            let cols = []
             for (let j = 1; j <= n_dots; j++) {
+                // cols.push(<span
+                //     className={"dot" + ((game.active_dot == ind) ? " dot-active" : "") + (game.adjacent_dots.includes(ind) ? " dot-next" : "")}
+                //     id={ind} onClick={this.handleClick}></span>)
+                rows.push(<Circle radius={15} x={50 * j} y={50 * i} fill={this.getFillColor(game,ind)}
+                                  id={ind} onClick={this.handleClick}/>)
                 ind++
-                cols.push(<span
-                    className={"dot" + ((game.active_dot == ind) ? " dot-active" : "") + (game.adjacent_dots.includes(ind) ? " dot-next" : "")}
-                    id={ind} onClick={this.handleClick}></span>)
             }
-            rows.push(<div className="col-8">{cols}</div>)
         }
-        return rows;
+        return (
+            <Stage width={512} height={389}>
+                <Layer>
+                    {rows}
+                </Layer>
+            </Stage>);
     }
 
     render() {
