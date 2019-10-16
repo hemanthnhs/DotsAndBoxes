@@ -15,7 +15,12 @@ defmodule DotsAndBoxesWeb.GamesChannel do
     end
   end
 
-
+  def handle_in("select", %{"dot_id" => dot_id}, socket) do
+    name = socket.assigns[:name]
+    game = Game.select(socket.assigns[:game],dot_id)
+    socket = assign(socket, :game, game)
+    {:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+  end
 
   # Add authorization logic here as required.
   defp authorized?(_payload) do

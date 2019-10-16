@@ -10,24 +10,27 @@ class Starter extends React.Component {
     constructor(props) {
         super(props);
         this.channel = props.channel
-        this.state = {game: {rows: 0, cols: 0, active_dot: 0}}
+        this.state = {game: {rows: 0, cols: 0, active_dot: 0, adjacent_dots: [], dots: {}}}
         this.handleClick = this.handleClick.bind(this)
         this.channel
             .join()
             .receive("ok", this.got_view.bind(this))
-            .receive("error", resp => { console.log("Unable to join", resp); });
+            .receive("error", resp => {
+                console.log("Unable to join", resp);
+            });
     }
 
     got_view(view) {
-        console.log("new view", view);
+        console.log("new view", view.game.adjacent_dots);
         this.setState({game: view.game});
     }
 
     handleClick(ev) {
         let s = this.state.game;
         s.active_dot = ev.target.id;
-        this.setState({game:s})
-        console.log(this.state)
+        this.channel.push("select", {dot_id: ev.target.id})
+            .receive("ok", this.got_view.bind(this));
+        this.setState({game: s})
     }
 
     renderBoard(game) {
@@ -40,8 +43,9 @@ class Starter extends React.Component {
             let cols = []
             for (let j = 1; j <= n_dots; j++) {
                 ind++
-                cols.push(<span className={"dot" + ((game.active_dot == ind) ? " dot-active" : "")}
-                                id={ind} onClick={this.handleClick}></span>)
+                cols.push(<span
+                    className={"dot" + ((game.active_dot == ind) ? " dot-active" : "") + (game.adjacent_dots.includes(ind) ? " dot-next" : "")}
+                    id={ind} onClick={this.handleClick}></span>)
             }
             rows.push(<div className="col-8">{cols}</div>)
         }
