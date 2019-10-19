@@ -5,8 +5,9 @@ defmodule DotsAndBoxes.Game do
       rows: 5,
       cols: 5,
       dots: initialize_dots(5, 5),
+      previous_dot: 0,
       active_dot: 0,
-      adjacent_dots: []
+      adjacent_dots: [],
     }
   end
 
@@ -15,8 +16,9 @@ defmodule DotsAndBoxes.Game do
       rows: game.rows,
       cols: game.cols,
       dots: game.dots,
+      previous_dot: game.previous_dot,
       active_dot: game.active_dot,
-      adjacent_dots: game.adjacent_dots
+      adjacent_dots: game.adjacent_dots,
     }
   end
 
@@ -34,26 +36,29 @@ defmodule DotsAndBoxes.Game do
     #    4. Reject other clicks than adjacent
     cond do
       (game.active_dot == 0) ->
-        adjacent_dots = get_adjacent_dots(dot_id, game.rows, game.cols)
-        %{game | active_dot: dot_id, adjacent_dots: adjacent_dots}
+        adjacent_dots = get_adjacent_dots(dot_id, game.rows, game.cols, Map.get(game.dots, dot_id))
+        %{game | active_dot: dot_id, adjacent_dots: adjacent_dots, previous_dot: dot_id}
       (game.active_dot == dot_id) ->
         %{game | active_dot: 0, adjacent_dots: []}
       (Enum.member?(game.adjacent_dots, dot_id)) ->
-        # TODO
-        %{game | active_dot: 0, adjacent_dots: []}
+        #      Reference for update https://elixirforum.com/t/updating-a-maps-values-that-are-lists/15670/5
+        dots = game.dots
+        dots = Map.update(dots, dot_id, [], &([game.previous_dot | &1]))
+        dots = Map.update(dots, game.previous_dot, [], &([dot_id | &1]))
+        %{game | dots: dots, active_dot: 0, adjacent_dots: []}
       (true) ->
         game
     end
   end
 
-  def get_adjacent_dots(dot_id, rows, cols) do
+  def get_adjacent_dots(dot_id, rows, cols, completed_dots) do
     max_dots = rows * cols
     id = dot_id
     []
-    |> add_to_list(rem(id, cols) != 1, [id - 1])
-    |> add_to_list(rem(id, cols) != 0, [id + 1])
-    |> add_to_list(id - rows > 0, [id - rows])
-    |> add_to_list(id + rows < max_dots, [id + rows])
+    |> add_to_list((rem(id, cols) != 1) and (!Enum.member?(completed_dots, id - 1)), [id - 1])
+    |> add_to_list((rem(id, cols) != 0) and (!Enum.member?(completed_dots, id + 1)), [id + 1])
+    |> add_to_list((id - rows > 0) and (!Enum.member?(completed_dots, id - rows)), [id - rows])
+    |> add_to_list((id + rows < max_dots) and (!Enum.member?(completed_dots, id + rows)), [id + rows])
   end
 
   def add_to_list(list, cond, new) do
