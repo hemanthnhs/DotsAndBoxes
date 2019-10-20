@@ -1,0 +1,8 @@
+<script>
+ //Referred https://github.com/NatTuck/hangman-2019-01/tree/01-31-channel-hangman
+  window.gameName = "<%= @name %>"
+</script>
+
+<div id="root">
+  <p>React app not loaded...</p>
+</div>
