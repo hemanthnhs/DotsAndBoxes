@@ -1,3 +1,8 @@
-<div id="root">
-  React app loading...
+<div class="container col-10 offset-1">
+    <h1 id="index-page">Join a Game</h1>
+    <h2> Enter your game name : </h2>
+    <input class="col-6 form-control" type="text" id = "nameBox" />
+    <!-- Referred https://stackoverflow.com/questions/22451513/javascript-to-open-a-url-the-text-input-by-user -->
+
+    <input type="button" class="btn btn-primary" value="Begin Game" onClick="javascript: window.open('/game/' + document.getElementById('nameBox').value);" />
 </div>

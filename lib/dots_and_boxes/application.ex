@@ -9,9 +9,11 @@ defmodule DotsAndBoxes.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      DotsAndBoxesWeb.Endpoint
+      DotsAndBoxesWeb.Endpoint,
       # Starts a worker by calling: DotsAndBoxes.Worker.start_link(arg)
       # {DotsAndBoxes.Worker, arg},
+      DotsAndBoxes.GameSup,
+      DotsAndBoxes.BackupAgent,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

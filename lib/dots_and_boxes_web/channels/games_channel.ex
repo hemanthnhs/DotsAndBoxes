@@ -2,12 +2,15 @@ defmodule DotsAndBoxesWeb.GamesChannel do
   use DotsAndBoxesWeb, :channel
 
   alias DotsAndBoxes.Game
+  alias DotsAndBoxes.BackupAgent
+  alias DotsAndBoxes.GameServer
 
   def join("games:" <> name, payload, socket) do
     if authorized?(payload) do
-      game = Game.new()
+      GameServer.start(name)
+      game = GameServer.peek(name)
+      BackupAgent.put(name, game)
       socket = socket
-      |> assign(:game, game)
       |> assign(:name, name)
       {:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
     else
@@ -17,8 +20,8 @@ defmodule DotsAndBoxesWeb.GamesChannel do
 
   def handle_in("select", %{"dot_id" => dot_id}, socket) do
     name = socket.assigns[:name]
-    game = Game.select(socket.assigns[:game],dot_id)
-    socket = assign(socket, :game, game)
+    game = GameServer.select(name,dot_id)
+    broadcast!(socket, "update", %{ "game" => Game.client_view(game) })
     {:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
   end
 
