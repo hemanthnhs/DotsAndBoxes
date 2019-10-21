@@ -51,14 +51,20 @@ defmodule DotsAndBoxes.Game do
     }
   end
 
-  def player_turn(game_config) do
+  def player_turn(game_config, scores, updated_scores) do
     curr_player = game_config.curr_player
-    if (curr_player == game_config.num_of_players) do
-      curr_player = 1
-      %{game_config | curr_player: curr_player}
+    score = Map.get(scores, curr_player)
+    updated_score = Map.get(updated_scores, curr_player)
+    if (updated_score != score) do
+      game_config
     else
-      curr_player = curr_player + 1
-      %{game_config | curr_player: curr_player}
+      if (curr_player == game_config.num_of_players) do
+        curr_player = 1
+        %{game_config | curr_player: curr_player}
+      else
+        curr_player = curr_player + 1
+        %{game_config | curr_player: curr_player}
+      end
     end
   end
 
@@ -146,7 +152,7 @@ defmodule DotsAndBoxes.Game do
           Map.get(dots, dot_id),
           Map.get(dots, game.previous_dot)
         )
-        game_config = player_turn(game.game_config)
+        game_config = player_turn(game.game_config, game.scores, scores)
         %{
           game |
           dots: dots,
@@ -227,7 +233,7 @@ defmodule DotsAndBoxes.Game do
     |> add_to_list((rem(id, cols) != 1) and (!Enum.member?(completed_dots, id - 1)), [id - 1])
     |> add_to_list((rem(id, cols) != 0) and (!Enum.member?(completed_dots, id + 1)), [id + 1])
     |> add_to_list((id - rows > 0) and (!Enum.member?(completed_dots, id - rows)), [id - rows])
-    |> add_to_list((id + rows < max_dots) and (!Enum.member?(completed_dots, id + rows)), [id + rows])
+    |> add_to_list((id + rows <= max_dots) and (!Enum.member?(completed_dots, id + rows)), [id + rows])
   end
 
   def add_to_list(list, cond, new) do

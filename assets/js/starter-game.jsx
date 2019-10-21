@@ -3,16 +3,18 @@ import ReactDOM from 'react-dom';
 import {Stage, Layer, Circle, Line, Rect} from 'react-konva';
 import _ from 'lodash';
 
-export default function game_init(root, channel, game_name) {
-    ReactDOM.render(<Starter channel={channel} game_name={game_name}/>, root);
+export default function game_init(root, channel, room_channel, game_name) {
+    ReactDOM.render(<Starter channel={channel} room_channel={room_channel} game_name={game_name}/>, root);
 }
 
 class Starter extends React.Component {
     constructor(props) {
         super(props);
         this.channel = props.channel
+        this.room_channel = props.room_channel
         this.state = {
             lines: [],
+            msgs: [],
             game: {
                 rows: 0, cols: 0, active_dot: 0, adjacent_dots: [], dots: {}, boxes: [], completed_dots: []
                 , scores: {}, game_config: {curr_player: "", players: [], start: false}
@@ -24,7 +26,17 @@ class Starter extends React.Component {
             .receive("error", resp => {
                 console.log("Unable to join", resp);
             });
+
+        this.room_channel
+            .join()
+            .receive("ok", () => console.log("Connected"))
+            .receive("error", resp => {
+                console.log("Unable to join", resp);
+            });
+
         this.channel.on("update", this.got_view.bind(this));
+
+        this.room_channel.on("new_message", this.got_msg.bind(this))
     }
 
     got_view(view) {
@@ -32,9 +44,21 @@ class Starter extends React.Component {
         this.setState({game: view.game});
     }
 
+    got_msg(view) {
+        console.log("new view", view.msg);
+        this.setState({
+            msgs: this.state.msgs.concat(view.msg)
+        })
+    }
+
     handleClick(ev, your_turn) {
         this.channel.push("select", {dot_id: ev.target.attrs.id})
             .receive("ok", this.got_view.bind(this), this.handleMove(ev, your_turn));
+    }
+
+    handleChatBtnClick() {
+        this.room_channel.push("chat", {msg: document.getElementById("input-msg").value})
+
     }
 
     handleMove(event, your_turn) {
@@ -236,9 +260,28 @@ class Starter extends React.Component {
         </div>)
     }
 
+    formatChatMsgs() {
+        let msgs = []
+        _(this.state.msgs).each(function (msg) {
+            msgs.push(<span className="offset-1 row msg">{msg}</span>)
+        })
+        return msgs
+    }
+
+    renderChatArea(player_name) {
+        return (
+            <div className="chat-container">
+                <div className="chat-msgs ow-break-word">{this.formatChatMsgs()}</div>
+                <div className="form-group row msg-input">
+                    <input type="text" id="input-msg" className="form-control offset-1 col-8"/>
+                    <button className="btn btn-primary" onClick={() => this.handleChatBtnClick()}>Submit</button>
+                </div>
+            </div>
+        )
+    }
+
     render() {
         //Attribution : https://getbootstrap.com/docs/4.3/components/navbar/
-        console.log(window.img_paths)
         let game = this.state.game
         let player_name = this.channel.socket.params().player_name
         let your_turn = (this.state.game.game_config.curr_player == player_name)
@@ -264,7 +307,12 @@ class Starter extends React.Component {
                 </span>
             </nav>
             <br/>
-            {this.state.game.game_config.start ? gameStarted : waitingScreen}
+            <div className="row">
+                {this.state.game.game_config.start ? gameStarted : waitingScreen}
+                <div className="col-3 container">
+                    {this.renderChatArea(player_name)}
+                </div>
+            </div>
         </div>)
     }
 }

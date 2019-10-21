@@ -4,6 +4,7 @@ defmodule DotsAndBoxesWeb.UserSocket do
   ## Channels
   # channel "room:*", DotsAndBoxesWeb.RoomChannel
   channel "games:*", DotsAndBoxesWeb.GamesChannel
+  channel "rooms:*", DotsAndBoxesWeb.RoomsChannel
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
   # verification, you can put default assigns into
