@@ -21,12 +21,23 @@ defmodule DotsAndBoxesWeb.GamesChannel do
     end
   end
 
+  def handle_in("notify", %{}, socket) do
+    name = socket.assigns[:name]
+    game = GameServer.peek(name)
+    broadcast!(socket, "update", %{"game" => Game.client_view(game)})
+  end
+
   def handle_in("select", %{"dot_id" => dot_id}, socket) do
     name = socket.assigns[:name]
     player_name = socket.assigns[:player_name]
     game = GameServer.select(name, dot_id, player_name)
     broadcast!(socket, "update", %{"game" => Game.client_view(game)})
     {:reply, {:ok, %{"game" => Game.client_view(game)}}, socket}
+  end
+
+  def handle_in("chat", %{"msg" => msg}, socket) do
+    broadcast!(socket, "new_message", %{"msg" => msg})
+    {:noreply, socket}
   end
 
   # Add authorization logic here as required.

@@ -3,15 +3,14 @@ import ReactDOM from 'react-dom';
 import {Stage, Layer, Circle, Line, Rect} from 'react-konva';
 import _ from 'lodash';
 
-export default function game_init(root, channel, room_channel, game_name) {
-    ReactDOM.render(<Starter channel={channel} room_channel={room_channel} game_name={game_name}/>, root);
+export default function game_init(root, channel, game_name) {
+    ReactDOM.render(<Starter channel={channel} game_name={game_name}/>, root);
 }
 
 class Starter extends React.Component {
     constructor(props) {
         super(props);
         this.channel = props.channel
-        this.room_channel = props.room_channel
         this.state = {
             lines: [],
             msgs: [],
@@ -20,23 +19,27 @@ class Starter extends React.Component {
                 , scores: {}, game_config: {curr_player: "", players: [], start: false}
             }
         }
+
         this.channel
             .join()
-            .receive("ok", this.got_view.bind(this))
-            .receive("error", resp => {
-                console.log("Unable to join", resp);
-            });
-
-        this.room_channel
-            .join()
-            .receive("ok", () => console.log("Connected"))
+            .receive("ok", this.join_success.bind(this))
             .receive("error", resp => {
                 console.log("Unable to join", resp);
             });
 
         this.channel.on("update", this.got_view.bind(this));
+        this.channel.on("new_message", this.got_msg.bind(this))
+    }
 
-        this.room_channel.on("new_message", this.got_msg.bind(this))
+    join_success(view) {
+        this.got_view(view)
+        this.after_join()
+    }
+
+    after_join() {
+        //to notify all other users of join
+        this.channel.push("notitfy", {})
+            .receive("ok", this.got_view.bind(this));
     }
 
     got_view(view) {
@@ -45,7 +48,7 @@ class Starter extends React.Component {
     }
 
     got_msg(view) {
-        console.log("new view", view.msg);
+        console.log("new msg")
         this.setState({
             msgs: this.state.msgs.concat(view.msg)
         })
@@ -57,8 +60,7 @@ class Starter extends React.Component {
     }
 
     handleChatBtnClick() {
-        this.room_channel.push("chat", {msg: document.getElementById("input-msg").value})
-
+        this.channel.push("chat", {msg: document.getElementById("input-msg").value})
     }
 
     handleMove(event, your_turn) {
