@@ -1,6 +1,17 @@
 /* This file is for your main application css. */
 @import "~bootstrap/dist/css/bootstrap.css";
 
+.waiting-board{
+    width: 512px;
+    height: 512px;
+    background-color: #525252;
+    border-radius: 10px;
+    box-shadow: 3px 2px #00000063;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
 .board {
     background-color: #837f9070;
     border-radius: 10px 10px 0px 0px;

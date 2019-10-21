@@ -15,7 +15,7 @@ class Starter extends React.Component {
             lines: [],
             game: {
                 rows: 0, cols: 0, active_dot: 0, adjacent_dots: [], dots: {}, boxes: [], completed_dots: []
-                , scores: {}, game_config: {curr_player: "", players: [], start: false }
+                , scores: {}, game_config: {curr_player: "", players: [], start: false}
             }
         }
         this.channel
@@ -180,7 +180,6 @@ class Starter extends React.Component {
         let n_dots = game.cols;
         let ind = 1;
         let rows = []
-        if(game.syart)
         for (let i = 1; i <= m_dots; i++) {
             for (let j = 1; j <= n_dots; j++) {
                 if (_.includes(game.completed_dots, ind)) {
@@ -249,6 +248,11 @@ class Starter extends React.Component {
             3: window.img_paths[2],
             4: window.img_paths[3]
         }
+        let gameStarted = <div className="offset-1 col-6 container">
+            {this.renderBoard(game, your_turn, user_imgs)}
+            {this.renderStatus(game, your_turn, user_imgs)}
+        </div>
+        let waitingScreen = <div className="offset-1 col-6 waiting-board">Please wait till players are connected</div>
         return (<div>
             <nav className="navbar navbar-dark bg-primary">
                 <span className="navbar-brand mb-0 h1">DOTS AND BOXES</span>
@@ -260,11 +264,7 @@ class Starter extends React.Component {
                 </span>
             </nav>
             <br/>
-            <div className="offset-1 col-6 container">
-                {this.renderBoard(game, your_turn, user_imgs)}
-                {this.renderStatus(game, your_turn, user_imgs)}
-            </div>
-
+            {this.state.game.game_config.start ? gameStarted : waitingScreen}
         </div>)
     }
 }
