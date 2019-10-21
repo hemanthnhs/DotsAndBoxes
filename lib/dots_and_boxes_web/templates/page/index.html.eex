@@ -1,8 +1,17 @@
-<div class="container col-10 offset-1">
-    <h1 id="index-page">Join a Game</h1>
-    <h2> Enter your game name : </h2>
-    <input class="col-6 form-control" type="text" id = "nameBox" />
-    <!-- Referred https://stackoverflow.com/questions/22451513/javascript-to-open-a-url-the-text-input-by-user -->
-
-    <input type="button" class="btn btn-primary" value="Begin Game" onClick="javascript: window.open('/game/' + document.getElementById('nameBox').value);" />
-</div>
+<nav class="navbar navbar-dark bg-primary">
+  <span class="navbar-brand mb-0 h1">DOTS AND BOXES</span>
+</nav>
+<br>
+<%= form_for @conn, "/game/", fn f -> %>
+<div class="col-5">
+  <label>
+    Game name : <%= text_input f, :game_name, class: "form-control" %>
+  </label>
+  </div>
+  <div class="col-5">
+  <label>
+    Player name : <%= text_input f, :player_name,  class: "form-control" %>
+  </label>
+  </div>
+    <button class="offset-1 btn btn-primary">Begin Game</button>
+<% end %>

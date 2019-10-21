@@ -17,13 +17,15 @@ defmodule DotsAndBoxes.GameServer do
 
   def start_link(name) do
     game = DotsAndBoxes.BackupAgent.get(name) || DotsAndBoxes.Game.new()
-    IO.puts("here start")
     GenServer.start_link(__MODULE__, game, name: reg(name))
   end
 
-  def select(name, dot_id) do
-    IO.puts("here genserver")
-    GenServer.call(reg(name), {:select, name, dot_id})
+  def select(name, dot_id, player_name) do
+    GenServer.call(reg(name), {:select, name, dot_id, player_name})
+  end
+
+  def new_join(name, player_name) do
+    GenServer.call(reg(name), {:new_join, name, player_name})
   end
 
   def peek(name) do
@@ -34,15 +36,25 @@ defmodule DotsAndBoxes.GameServer do
     {:ok, game}
   end
 
-  def handle_call({:select, name, dot_id}, _from, game) do
-    IO.puts("reply")
-    game = DotsAndBoxes.Game.select(game, dot_id)
-    DotsAndBoxes.BackupAgent.put(name, game)
+  def handle_call({:select, name, dot_id, player_name}, _from, game) do
+    is_curr_player = DotsAndBoxes.Game.is_current_player(game, player_name)
+    if is_curr_player do
+      game = DotsAndBoxes.Game.select(game, dot_id)
+      DotsAndBoxes.BackupAgent.put(name, game)
+      {:reply, game, game}
+    else
+      {:noreply, game}
+    end
+  end
+
+  def handle_call({:peek, _name}, _from, game) do
     {:reply, game, game}
   end
 
- def handle_call({:peek, _name}, _from, game) do
-   {:reply, game, game}
- end
+  def handle_call({:new_join, name, player_name}, _from, game) do
+    game = DotsAndBoxes.Game.new_player(game, player_name)
+    DotsAndBoxes.BackupAgent.put(name, game)
+    {:reply, game, game}
+  end
 
 end

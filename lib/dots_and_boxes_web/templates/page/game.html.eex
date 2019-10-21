@@ -1,6 +1,7 @@
 <script>
  //Referred https://github.com/NatTuck/hangman-2019-01/tree/01-31-channel-hangman
-  window.gameName = "<%= @name %>"
+  window.gameName = "<%= @game_name %>"
+  window.playerName = "<%= @player_name %>"
 </script>
 
 <div id="root">

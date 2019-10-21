@@ -10,8 +10,11 @@ defmodule DotsAndBoxesWeb.GamesChannel do
       GameServer.start(name)
       game = GameServer.peek(name)
       BackupAgent.put(name, game)
+      player_name = socket.assigns[:player_name]
+      game = GameServer.new_join(name, player_name)
+      BackupAgent.put(name, game)
       socket = socket
-      |> assign(:name, name)
+               |> assign(:name, name)
       {:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
     else
       {:error, %{reason: "unauthorized"}}
@@ -20,9 +23,10 @@ defmodule DotsAndBoxesWeb.GamesChannel do
 
   def handle_in("select", %{"dot_id" => dot_id}, socket) do
     name = socket.assigns[:name]
-    game = GameServer.select(name,dot_id)
-    broadcast!(socket, "update", %{ "game" => Game.client_view(game) })
-    {:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+    player_name = socket.assigns[:player_name]
+    game = GameServer.select(name, dot_id, player_name)
+    broadcast!(socket, "update", %{"game" => Game.client_view(game)})
+    {:reply, {:ok, %{"game" => Game.client_view(game)}}, socket}
   end
 
   # Add authorization logic here as required.
