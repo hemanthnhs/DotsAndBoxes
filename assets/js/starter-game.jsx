@@ -15,7 +15,7 @@ class Starter extends React.Component {
             lines: [],
             game: {
                 rows: 0, cols: 0, active_dot: 0, adjacent_dots: [], dots: {}, boxes: [], completed_dots: []
-                , game_config: {curr_player: "", players: []}
+                , scores: {}, game_config: {curr_player: "", players: [], start: false }
             }
         }
         this.channel
@@ -90,9 +90,8 @@ class Starter extends React.Component {
         return {row_id, col_id}
     }
 
-    renderCompletedBoxes(boxes, rows, cols) {
+    renderCompletedBoxes(boxes, rows, cols, images) {
         // TODO
-        let user_colors = {1: "blue", 2: "red"}
         let rects = []
         let that = this
         _.forEach(boxes, function (val, key) {
@@ -104,10 +103,8 @@ class Starter extends React.Component {
                         y={50 * row_id}
                         width={50}
                         height={50}
-                        fill={user_colors[key]}
-                        // fillLinearGradientStartPoint={{x: -50, y: -50}}
-                        // fillLinearGradientEndPoint={{x: 50, y: 50}}
-                        // fillLinearGradientColorStops={[0, 'DarkCyan', 1, 'yellow']}
+                        fillPatternImage={images[key]}
+                        fillPatternScale={{x: 0.5, y: 0.5}}
                         shadowBlur={10}
                     />
                 )
@@ -178,11 +175,12 @@ class Starter extends React.Component {
         }
     }
 
-    renderBoard(game, your_turn) {
+    renderBoard(game, your_turn, user_imgs) {
         let m_dots = game.rows;
         let n_dots = game.cols;
         let ind = 1;
         let rows = []
+        if(game.syart)
         for (let i = 1; i <= m_dots; i++) {
             for (let j = 1; j <= n_dots; j++) {
                 if (_.includes(game.completed_dots, ind)) {
@@ -203,11 +201,17 @@ class Starter extends React.Component {
                 ind++
             }
         }
+        let images = []
+        _.each([...Array(4).keys()], function (key) {
+            let image = new Image()
+            image.src = user_imgs[key]
+            images.push(image)
+        })
         return (
             <div className="board">
                 <Stage className="offset-3" onMouseMove={(e) => this.handleMove(e, your_turn)} width={512} height={452}>
                     <Layer>
-                        {this.renderCompletedBoxes(game.boxes, game.rows, game.cols)}
+                        {this.renderCompletedBoxes(game.boxes, game.rows, game.cols, images)}
                         {this.renderConnectedLines(game.dots, game.rows, game.cols)}
                         {this.renderConnnectingLine()}
                         {rows}
@@ -216,14 +220,15 @@ class Starter extends React.Component {
             </div>);
     }
 
-    renderStatus(your_turn) {
+    renderStatus(game, your_turn, user_imgs) {
         let score_lists = []
-        _(this.state.game.game_config.players).each(function (e) {
-            score_lists.push(<li>{e}</li>)
+        _.each(this.state.game.game_config.players, function (e, ind) {
+            score_lists.push(<li key={ind + 1}><img className={"score-icons"} src={user_imgs[ind + 1]}/>{e} :
+                {game.scores[ind + 1]}</li>)
         })
         return (<div className="status card-group">
             <div className="scores col-8">
-                <div>Scores</div>
+                {/*<div className="font-weight-bold"><u>Scores</u></div>*/}
                 <ul>{score_lists}</ul>
             </div>
             <div className={"col-4 h3 " + ((your_turn) ? "turn-display-active" : "turn-display")}>
@@ -234,22 +239,30 @@ class Starter extends React.Component {
 
     render() {
         //Attribution : https://getbootstrap.com/docs/4.3/components/navbar/
+        console.log(window.img_paths)
         let game = this.state.game
         let player_name = this.channel.socket.params().player_name
         let your_turn = (this.state.game.game_config.curr_player == player_name)
+        let user_imgs = {
+            1: window.img_paths[0],
+            2: window.img_paths[1],
+            3: window.img_paths[2],
+            4: window.img_paths[3]
+        }
         return (<div>
             <nav className="navbar navbar-dark bg-primary">
                 <span className="navbar-brand mb-0 h1">DOTS AND BOXES</span>
                 <span className="navbar-text">
                   Game name : {this.props.game_name}
                     <br/>
-                  Player : {player_name}
+                    {_.includes(this.state.game.game_config.players, player_name)
+                        ? "Playing as " + player_name : "Spectating as " + player_name}
                 </span>
             </nav>
             <br/>
             <div className="offset-1 col-6 container">
-                {this.renderBoard(game, your_turn)}
-                {this.renderStatus(your_turn)}
+                {this.renderBoard(game, your_turn, user_imgs)}
+                {this.renderStatus(game, your_turn, user_imgs)}
             </div>
 
         </div>)

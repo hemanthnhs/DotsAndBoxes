@@ -21,7 +21,7 @@
     background-color: rgb(40, 40, 40);
     border-radius: 0px 0px 0px 10px;
     height: 100px;
-    text-align: center;
+    /*text-align: center;*/
 }
 
 .turn-display, turn-display-active {
@@ -33,10 +33,19 @@
 
 .turn-display-active {
     background-color: #bbd22bd4;
-    -webkit-text-stroke: 1x black;
     color: white;
 }
 
 body {
     background-color: #0c546024;
+}
+
+.score-icons{
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+}
+
+ul{
+    list-style-type:none
 }

@@ -47,6 +47,7 @@ defmodule DotsAndBoxes.Game do
       boxes: initialize_boxes(2),
       completed_dots: [],
       game_config: new_game_config(),
+      scores: initialize_scores(2)
     }
   end
 
@@ -63,7 +64,7 @@ defmodule DotsAndBoxes.Game do
 
   def is_current_player(game, player_name) do
     players = game.game_config.players
-    if (Map.get(players, game.game_config.curr_player) == player_name) do
+    if (Map.get(players, game.game_config.curr_player) == player_name and game.game_config.start) do
       true
     else
       false
@@ -88,6 +89,7 @@ defmodule DotsAndBoxes.Game do
       boxes: game.boxes,
       completed_dots: game.completed_dots,
       game_config: client_game_config(game.game_config),
+      scores: game.scores,
     }
   end
 
@@ -100,6 +102,11 @@ defmodule DotsAndBoxes.Game do
   def initialize_boxes(num_of_players) do
     #Attribution https://inquisitivedeveloper.com/lwm-elixir-47/
     Map.new(1..num_of_players, fn n -> {n, []} end)
+  end
+
+  def initialize_scores(num_of_players) do
+    #Attribution https://inquisitivedeveloper.com/lwm-elixir-47/
+    Map.new(1..num_of_players, fn n -> {n, 0} end)
   end
 
   def select(game, dot_id) do
@@ -119,7 +126,8 @@ defmodule DotsAndBoxes.Game do
         dots = game.dots
         dots = Map.update(dots, dot_id, [], &([game.previous_dot | &1]))
         dots = Map.update(dots, game.previous_dot, [], &([dot_id | &1]))
-        boxes = check_and_create_boxes(
+        updated_game = check_and_create_boxes(
+          game,
           game.game_config.curr_player,
           dot_id,
           game.previous_dot,
@@ -127,6 +135,8 @@ defmodule DotsAndBoxes.Game do
           game.rows,
           game.boxes
         )
+        boxes = updated_game.boxes
+        scores = updated_game.scores
         completed_dots = update_completed(
           game.completed_dots,
           dot_id,
@@ -144,7 +154,8 @@ defmodule DotsAndBoxes.Game do
           adjacent_dots: [],
           boxes: boxes,
           completed_dots: completed_dots,
-          game_config: game_config
+          game_config: game_config,
+          scores: scores
         }
       (true) ->
         game
@@ -159,49 +170,53 @@ defmodule DotsAndBoxes.Game do
     |> add_to_list(length(adjacent_dots_for_previous) == 0, [prev_dot])
   end
 
-  def check_and_create_boxes(player_id, curr_dot, prev_dot, dots, rows, boxes) do
+  def check_and_create_boxes(game, player_id, curr_dot, prev_dot, dots, rows, boxes) do
     # TODO one side of box already done
-    #    dots = game.dots
-    #    dots = Map.update(dots, dot_id, [], &([game.previous_dot | &1]))
-    #    dots = Map.update(dots, game.previous_dot, [], &([dot_id | &1]))
     current_boxes = Map.get(boxes, player_id)
+    scores = game.scores
     if (abs(curr_dot - prev_dot) == 1) do
       #      Line is horizontal
       #      Check for boxes up or down
-      current_boxes = add_to_list(current_boxes,
-           (Enum.member?(dots[curr_dot], curr_dot - rows) and Enum.member?(dots[prev_dot], prev_dot - rows)
-            and Enum.member?(dots[prev_dot - rows], curr_dot - rows)
-             ),
-           [Enum.sort([curr_dot, prev_dot, curr_dot - rows, prev_dot - rows])]
-         )
-      current_boxes = add_to_list( current_boxes,
-           (
-             Enum.member?(dots[curr_dot], curr_dot + rows) and Enum.member?(dots[prev_dot], prev_dot + rows)
-             and Enum.member?(dots[prev_dot + rows], curr_dot + rows)
-             ),
-           [Enum.sort([curr_dot, prev_dot, curr_dot + rows, prev_dot + rows])]
-         )
+      current_boxes = add_to_list(
+        current_boxes,
+        (Enum.member?(dots[curr_dot], curr_dot - rows) and Enum.member?(dots[prev_dot], prev_dot - rows)
+         and Enum.member?(dots[prev_dot - rows], curr_dot - rows)
+          ),
+        [Enum.sort([curr_dot, prev_dot, curr_dot - rows, prev_dot - rows])]
+      )
+      current_boxes = add_to_list(
+        current_boxes,
+        (
+          Enum.member?(dots[curr_dot], curr_dot + rows) and Enum.member?(dots[prev_dot], prev_dot + rows)
+          and Enum.member?(dots[prev_dot + rows], curr_dot + rows)
+          ),
+        [Enum.sort([curr_dot, prev_dot, curr_dot + rows, prev_dot + rows])]
+      )
       boxes = Map.put(boxes, player_id, current_boxes)
-      boxes
+      scores = Map.put(scores, player_id, length(current_boxes))
+      %{game | boxes: boxes, scores: scores}
     else
       #    Line is vertical
       #    Check for boxes on right and left
-      current_boxes = add_to_list(current_boxes,
-           (
-             Enum.member?(dots[curr_dot], curr_dot - 1) and Enum.member?(dots[prev_dot], prev_dot - 1)
-             and Enum.member?(dots[prev_dot - 1], curr_dot - 1)
-             ),
-           [Enum.sort([curr_dot, prev_dot, curr_dot - 1, prev_dot - 1])]
-         )
-      current_boxes = add_to_list(current_boxes,
-           (
-             Enum.member?(dots[curr_dot], curr_dot + 1) and Enum.member?(dots[prev_dot], prev_dot + 1)
-             and Enum.member?(dots[prev_dot + 1], curr_dot + 1)
-             ),
-           [Enum.sort([curr_dot, prev_dot, curr_dot + 1, prev_dot + 1])]
-         )
+      current_boxes = add_to_list(
+        current_boxes,
+        (
+          Enum.member?(dots[curr_dot], curr_dot - 1) and Enum.member?(dots[prev_dot], prev_dot - 1)
+          and Enum.member?(dots[prev_dot - 1], curr_dot - 1)
+          ),
+        [Enum.sort([curr_dot, prev_dot, curr_dot - 1, prev_dot - 1])]
+      )
+      current_boxes = add_to_list(
+        current_boxes,
+        (
+          Enum.member?(dots[curr_dot], curr_dot + 1) and Enum.member?(dots[prev_dot], prev_dot + 1)
+          and Enum.member?(dots[prev_dot + 1], curr_dot + 1)
+          ),
+        [Enum.sort([curr_dot, prev_dot, curr_dot + 1, prev_dot + 1])]
+      )
       boxes = Map.put(boxes, player_id, current_boxes)
-      boxes
+      scores = Map.put(scores, player_id, length(current_boxes))
+      %{game | boxes: boxes, scores: scores}
     end
   end
 

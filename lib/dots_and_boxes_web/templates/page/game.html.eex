@@ -1,7 +1,12 @@
+
 <script>
  //Referred https://github.com/NatTuck/hangman-2019-01/tree/01-31-channel-hangman
   window.gameName = "<%= @game_name %>"
   window.playerName = "<%= @player_name %>"
+  window.img_paths = ["<%= Routes.static_path(@conn, "/images/user1.png") %>"
+  ,"<%= Routes.static_path(@conn, "/images/user2.png") %>"
+  ,"<%= Routes.static_path(@conn, "/images/user3.png") %>"
+  ,"<%= Routes.static_path(@conn, "/images/user4.png") %>"];
 </script>
 
 <div id="root">
