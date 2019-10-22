@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Stage, Layer, Circle, Line, Rect} from 'react-konva';
+import ChatInputComp from './ChatInputComp'
 import _ from 'lodash';
 
 export default function game_init(root, channel, game_name) {
@@ -13,6 +14,7 @@ class Starter extends React.Component {
         this.channel = props.channel
         this.state = {
             lines: [],
+            current_input_msg: "",
             msgs: [],
             game: {
                 rows: 0, cols: 0, active_dot: 0, adjacent_dots: [], dots: {}, boxes: [], completed_dots: []
@@ -48,10 +50,16 @@ class Starter extends React.Component {
     }
 
     got_msg(view) {//[player_name,"msg"]
-        console.log("new msg")
+        console.log(view)
         this.setState({
-            msgs: this.state.msgs.concat(view.msg)
+            msgs: this.state.msgs.concat(view)
         })
+    }
+
+    handleStartGame() {
+        console.log("game start")
+        // this.channel.push("start", {})
+        //     .receive("ok", this.got_view.bind(this));
     }
 
     handleClick(ev, your_turn) {
@@ -61,6 +69,11 @@ class Starter extends React.Component {
 
     handleChatBtnClick() {
         this.channel.push("chat", {msg: document.getElementById("input-msg").value})
+        this.setState({current_input_msg: ""})
+    }
+
+    handleChatInput(ev) {
+        this.setState({current_input_msg: ev.target.value})
     }
 
     handleMove(event, your_turn) {
@@ -74,7 +87,8 @@ class Starter extends React.Component {
                     this.setState({lines: [y / 50, x / 50]})
                 } else {
                     //stop the line and move to completed lines
-                    if (_.includes(this.state.game.adjacent_dots, event.target.attrs.id) || this.state.game.active_dot == event.target.attrs.id) {
+                    if (_.includes(this.state.game.adjacent_dots, event.target.attrs.id)
+                        || this.state.game.active_dot == event.target.attrs.id) {
                         this.setState({lines: []})
                     }
                 }
@@ -114,6 +128,15 @@ class Starter extends React.Component {
         let row_id = Math.ceil(id / cols);
         let col_id = id - ((row_id - 1) * cols);
         return {row_id, col_id}
+    }
+
+    getUserImages() {
+        return ({
+            1: window.img_paths[0],
+            2: window.img_paths[1],
+            3: window.img_paths[2],
+            4: window.img_paths[3]
+        });
     }
 
     renderCompletedBoxes(boxes, rows, cols, user_imgs) {
@@ -258,10 +281,19 @@ class Starter extends React.Component {
         </div>)
     }
 
-    formatChatMsgs() {
+    formatChatMsgs(player_name) {
         let msgs = []
         _(this.state.msgs).each(function (msg) {
-            msgs.push(<span className="offset-1 row msg">{msg}</span>)
+            if (msg.player_name != player_name) {
+                msgs.push(<span className="offset-1 row msg-container"><span
+                    className="msg-player-info text-muted">{msg.player_name + ": "}</span><span
+                    className={"msg ow-break-word"}>{msg.msg}</span></span>)
+
+            } else {
+                msgs.push(<span className="offset-1 row msg-container active-msg-container"><span
+                    className="msg-player-info text-muted">{"You: "}</span><br/><span
+                    className={"msg ow-break-word"}>{msg.msg}</span></span>)
+            }
         })
         return msgs
     }
@@ -269,38 +301,68 @@ class Starter extends React.Component {
     renderChatArea(player_name) {
         return (
             <div className="chat-container">
-                <div className="chat-msgs ow-break-word">{this.formatChatMsgs()}</div>
+                <div className="chat-msgs ow-break-word">{this.formatChatMsgs(player_name)}</div>
                 <div className="form-group row msg-input">
-                    <input type="text" id="input-msg" className="form-control offset-1 col-8"/>
-                    <button className="btn btn-primary" onClick={() => this.handleChatBtnClick()}>Submit</button>
+                    <ChatInputComp value={this.state.current_input_msg} onInputChange={(ev) => this.handleChatInput(ev)}
+                                   onBtnClick={() => this.handleChatBtnClick()}/>
                 </div>
             </div>
         )
     }
 
+    renderHostArea(connected_players, total_players, invite_area) {
+        return (
+            <div className="offset-1 col-6 waiting-board"> Currently {connected_players} of {total_players} players
+                connected. You can start the game once all players join.
+                {invite_area}
+                <button className="btn btn-primary" onClick={this.handleStartGame}
+                        disabled={false/*connected_players != total_players*/}>Start game!!!
+                </button>
+            </div>
+        )
+    }
+
+    renderWaitingScreen(game_name, host_name, player_name, connected_players, total_players) {
+        //(connected_players == total_players)
+        let game_link = window.location + game_name
+        let invite_area = <div>
+            <div className="share-game">Please share the game name or following link to invite players to join or
+                spectate game
+            </div>
+            <div><input className={"form-control offset-2 col-8"} readOnly={true} type="text" defaultValue={game_link}/></div>
+        </div>
+        if (host_name == player_name) {
+            return this.renderHostArea(connected_players, total_players, invite_area)
+        } else {
+            //Using window location here to make it work on any site deployed without changing the code
+            return (<div className="offset-1 col-6 waiting-board">
+                Currently {connected_players} of {total_players} players connected. Please wait till host begins the
+                game.
+                {invite_area}
+            </div>)
+        }
+    }
+
     render() {
         //Attribution : https://getbootstrap.com/docs/4.3/components/navbar/
         let game = this.state.game
+        let host_name = game.game_config.players[0]
         let player_name = this.channel.socket.params().player_name
         let your_turn = (this.state.game.game_config.curr_player == player_name)
-        let user_imgs = {
-            1: window.img_paths[0],
-            2: window.img_paths[1],
-            3: window.img_paths[2],
-            4: window.img_paths[3]
-        }
+        let user_imgs = this.getUserImages()
         let gameStarted = <div className="offset-1 col-6 container">
             {this.renderBoard(game, your_turn, user_imgs)}
             {this.renderStatus(game, your_turn, user_imgs)}
         </div>
-        let waitingScreen = <div className="offset-1 col-6 waiting-board">Please wait till players are connected</div>
+        let waitingScreen = this.renderWaitingScreen(this.props.game_name, host_name, player_name,
+            game.game_config.players.length, game.game_config.num_of_players)
         return (<div>
             <nav className="navbar navbar-dark bg-primary">
                 <span className="navbar-brand mb-0 h1">DOTS AND BOXES</span>
                 <span className="navbar-text">
                   Game name : {this.props.game_name}
                     <br/>
-                  Hosted by : {this.state.game.game_config.players[0]}
+                  Hosted by : {host_name}
                     <br/>
                     {_.includes(this.state.game.game_config.players, player_name)
                         ? "Playing as " + player_name : "Spectating as " + player_name}

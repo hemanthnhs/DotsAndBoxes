@@ -68,6 +68,15 @@ defmodule DotsAndBoxes.Game do
     end
   end
 
+  def update_game_complete(game_config, scores, rows, cols) do
+    if (Enum.sum(Map.values(scores) == (rows - 1) * (cols - 1))) do
+      # TODO winner condition
+      game_config
+    else
+      game_config
+    end
+  end
+
   def is_current_player(game, player_name) do
     players = game.game_config.players
     if (Map.get(players, game.game_config.curr_player) == player_name and game.game_config.start) do
@@ -153,6 +162,7 @@ defmodule DotsAndBoxes.Game do
           Map.get(dots, game.previous_dot)
         )
         game_config = player_turn(game.game_config, game.scores, scores)
+        game_config = update_game_complete(game_config, scores, game.rows, game.cols)
         %{
           game |
           dots: dots,

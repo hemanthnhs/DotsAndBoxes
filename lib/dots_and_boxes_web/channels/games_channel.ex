@@ -37,7 +37,8 @@ defmodule DotsAndBoxesWeb.GamesChannel do
   end
 
   def handle_in("chat", %{"msg" => msg}, socket) do
-    broadcast!(socket, "new_message", %{"msg" => msg})
+    player_name = socket.assigns[:player_name]
+    broadcast!(socket, "new_message", %{"player_name" => player_name, "msg" => msg})
     {:noreply, socket}
   end
 

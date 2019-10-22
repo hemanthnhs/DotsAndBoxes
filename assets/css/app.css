@@ -15,8 +15,7 @@
     overflow-wrap: break-word;
 }
 
-.msg {
-    /*background-color: #2b962b;*/
+.msg-container {
     background-color: rgba(137, 198, 137, 0.95);
     padding: 2px;
     padding-left: 10px;
@@ -26,7 +25,10 @@
     margin-top: 5px;
     width: fit-content;
     max-width: 90%;
+}
 
+.active-msg-container{
+    background-color: rgba(187, 198, 73, 0.81);
 }
 
 .chat-container {
