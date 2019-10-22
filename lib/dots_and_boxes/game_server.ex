@@ -16,7 +16,12 @@ defmodule DotsAndBoxes.GameServer do
   end
 
   def start_link(name) do
-    game = DotsAndBoxes.BackupAgent.get(name) || DotsAndBoxes.Game.new()
+    game = DotsAndBoxes.BackupAgent.get(name) || DotsAndBoxes.Game.new(5, 5)
+    GenServer.start_link(__MODULE__, game, name: reg(name))
+  end
+
+  def start_link(name, rows_num, cols_num, players_num) do
+    game = DotsAndBoxes.BackupAgent.get(name) || DotsAndBoxes.Game.new(rows_num, cols_num, players_num)
     GenServer.start_link(__MODULE__, game, name: reg(name))
   end
 

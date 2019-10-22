@@ -1,8 +1,8 @@
 defmodule DotsAndBoxes.Game do
 
-  def new_game_config do
+  def new_game_config(players_num) do
     %{
-      num_of_players: 2,
+      num_of_players: players_num,
       players: %{},
       spectate: MapSet.new(),
       curr_player: 1,
@@ -36,18 +36,18 @@ defmodule DotsAndBoxes.Game do
     end
   end
 
-  def new do
+  def new(rows_num, cols_num, players_num) do
     %{
-      rows: 5,
-      cols: 5,
-      dots: initialize_dots(5, 5),
+      rows: rows_num,
+      cols: cols_num,
+      dots: initialize_dots(rows_num, cols_num),
       previous_dot: 0,
       active_dot: 0,
       adjacent_dots: [],
-      boxes: initialize_boxes(2),
+      boxes: initialize_boxes(players_num),
       completed_dots: [],
-      game_config: new_game_config(),
-      scores: initialize_scores(2)
+      game_config: new_game_config(players_num),
+      scores: initialize_scores(players_num)
     }
   end
 
@@ -138,7 +138,7 @@ defmodule DotsAndBoxes.Game do
           dot_id,
           game.previous_dot,
           game.dots,
-          game.rows,
+          game.cols,
           game.boxes
         )
         boxes = updated_game.boxes
@@ -176,7 +176,7 @@ defmodule DotsAndBoxes.Game do
     |> add_to_list(length(adjacent_dots_for_previous) == 0, [prev_dot])
   end
 
-  def check_and_create_boxes(game, player_id, curr_dot, prev_dot, dots, rows, boxes) do
+  def check_and_create_boxes(game, player_id, curr_dot, prev_dot, dots, cols, boxes) do
     # TODO one side of box already done
     current_boxes = Map.get(boxes, player_id)
     scores = game.scores
@@ -185,18 +185,18 @@ defmodule DotsAndBoxes.Game do
       #      Check for boxes up or down
       current_boxes = add_to_list(
         current_boxes,
-        (Enum.member?(dots[curr_dot], curr_dot - rows) and Enum.member?(dots[prev_dot], prev_dot - rows)
-         and Enum.member?(dots[prev_dot - rows], curr_dot - rows)
+        (Enum.member?(dots[curr_dot], curr_dot - cols) and Enum.member?(dots[prev_dot], prev_dot - cols)
+         and Enum.member?(dots[prev_dot - cols], curr_dot - cols)
           ),
-        [Enum.sort([curr_dot, prev_dot, curr_dot - rows, prev_dot - rows])]
+        [Enum.sort([curr_dot, prev_dot, curr_dot - cols, prev_dot - cols])]
       )
       current_boxes = add_to_list(
         current_boxes,
         (
-          Enum.member?(dots[curr_dot], curr_dot + rows) and Enum.member?(dots[prev_dot], prev_dot + rows)
-          and Enum.member?(dots[prev_dot + rows], curr_dot + rows)
+          Enum.member?(dots[curr_dot], curr_dot + cols) and Enum.member?(dots[prev_dot], prev_dot + cols)
+          and Enum.member?(dots[prev_dot + cols], curr_dot + cols)
           ),
-        [Enum.sort([curr_dot, prev_dot, curr_dot + rows, prev_dot + rows])]
+        [Enum.sort([curr_dot, prev_dot, curr_dot + cols, prev_dot + cols])]
       )
       boxes = Map.put(boxes, player_id, current_boxes)
       scores = Map.put(scores, player_id, length(current_boxes))
@@ -232,8 +232,8 @@ defmodule DotsAndBoxes.Game do
     []
     |> add_to_list((rem(id, cols) != 1) and (!Enum.member?(completed_dots, id - 1)), [id - 1])
     |> add_to_list((rem(id, cols) != 0) and (!Enum.member?(completed_dots, id + 1)), [id + 1])
-    |> add_to_list((id - rows > 0) and (!Enum.member?(completed_dots, id - rows)), [id - rows])
-    |> add_to_list((id + rows <= max_dots) and (!Enum.member?(completed_dots, id + rows)), [id + rows])
+    |> add_to_list((id - cols > 0) and (!Enum.member?(completed_dots, id - cols)), [id - cols])
+    |> add_to_list((id + cols <= max_dots) and (!Enum.member?(completed_dots, id + cols)), [id + cols])
   end
 
   def add_to_list(list, cond, new) do
