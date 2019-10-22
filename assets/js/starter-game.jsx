@@ -38,7 +38,7 @@ class Starter extends React.Component {
 
     after_join() {
         //to notify all other users of join
-        this.channel.push("notitfy", {})
+        this.channel.push("notify", {})
             .receive("ok", this.got_view.bind(this));
     }
 
@@ -116,12 +116,14 @@ class Starter extends React.Component {
         return {row_id, col_id}
     }
 
-    renderCompletedBoxes(boxes, rows, cols, images) {
+    renderCompletedBoxes(boxes, rows, cols, user_imgs) {
         // TODO
         let rects = []
         let that = this
         _.forEach(boxes, function (val, key) {
             _(val).each(function (sq_cords) {
+                let image = new Image()
+                image.src = user_imgs[key]
                 let {row_id, col_id} = that.getPositionCordinate(sq_cords[0], rows, cols)
                 //Reference https://konvajs.org/docs/react/Shapes.html
                 rects.push(<Rect
@@ -129,7 +131,7 @@ class Starter extends React.Component {
                         y={50 * row_id}
                         width={50}
                         height={50}
-                        fillPatternImage={images[key]}
+                        fillPatternImage={image}
                         fillPatternScale={{x: 0.5, y: 0.5}}
                         shadowBlur={10}
                     />
@@ -226,17 +228,11 @@ class Starter extends React.Component {
                 ind++
             }
         }
-        let images = []
-        _.each([...Array(4).keys()], function (key) {
-            let image = new Image()
-            image.src = user_imgs[key]
-            images.push(image)
-        })
         return (
             <div className="board">
                 <Stage className="offset-3" onMouseMove={(e) => this.handleMove(e, your_turn)} width={512} height={452}>
                     <Layer>
-                        {this.renderCompletedBoxes(game.boxes, game.rows, game.cols, images)}
+                        {this.renderCompletedBoxes(game.boxes, game.rows, game.cols, user_imgs)}
                         {this.renderConnectedLines(game.dots, game.rows, game.cols)}
                         {this.renderConnnectingLine()}
                         {rows}
