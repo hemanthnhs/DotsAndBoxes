@@ -2,16 +2,46 @@
   <span class="navbar-brand mb-0 h1">DOTS AND BOXES</span>
 </nav>
 <br>
+<div class="row col-12">
+ <div class="col-5 offset-1">
 <%= form_for @conn, "/game/", fn f -> %>
-<div class="col-5">
+ <%= text_input f, :create, value: true , hidden: true %><div class="form-group">
+ <h2>Start A New Game</h2>
   <label>
     Game name : <%= text_input f, :game_name, class: "form-control" %>
   </label>
-  </div>
-  <div class="col-5">
   <label>
     Player name : <%= text_input f, :player_name,  class: "form-control" %>
   </label>
+  <label>
+    Rows : <%= text_input f, :rows_num,  class: "form-control" %>
+  </label>
+  <label>
+    Cols : <%= text_input f, :cols_num,  class: "form-control" %>
+  </label>
+  <label>
+    Number of players : <%= text_input f, :players_num,  class: "form-control" %>
+  </label>
   </div>
-    <button class="offset-1 btn btn-primary">Begin Game</button>
+    <button class="btn btn-primary">Begin Game</button>
 <% end %>
+ </div>
+ <div class="col-5 offset-1">
+
+<%= form_for @conn, "/game/", fn f -> %>
+ <%= text_input f, :create, value: false , hidden: true %><div class="form-group">
+<div class="form-group">
+   <h2>Join An Existing Game </h2>
+   <label>
+      Game name : <%= text_input f, :game_name, class: "form-control col-12" %>
+   </label>
+   <label>
+      Player name : <%= text_input f, :player_name,  class: "form-control" %>
+   </label>
+   </div>
+    <button class="btn btn-primary">Join Game</button>
+
+<% end %>
+ </div>
+
+ </div>

@@ -3,15 +3,14 @@ import ReactDOM from 'react-dom';
 import {Stage, Layer, Circle, Line, Rect} from 'react-konva';
 import _ from 'lodash';
 
-export default function game_init(root, channel, room_channel, game_name) {
-    ReactDOM.render(<Starter channel={channel} room_channel={room_channel} game_name={game_name}/>, root);
+export default function game_init(root, channel, game_name) {
+    ReactDOM.render(<Starter channel={channel} game_name={game_name}/>, root);
 }
 
 class Starter extends React.Component {
     constructor(props) {
         super(props);
         this.channel = props.channel
-        this.room_channel = props.room_channel
         this.state = {
             lines: [],
             msgs: [],
@@ -20,23 +19,27 @@ class Starter extends React.Component {
                 , scores: {}, game_config: {curr_player: "", players: [], start: false}
             }
         }
+
         this.channel
             .join()
-            .receive("ok", this.got_view.bind(this))
-            .receive("error", resp => {
-                console.log("Unable to join", resp);
-            });
-
-        this.room_channel
-            .join()
-            .receive("ok", () => console.log("Connected"))
+            .receive("ok", this.join_success.bind(this))
             .receive("error", resp => {
                 console.log("Unable to join", resp);
             });
 
         this.channel.on("update", this.got_view.bind(this));
+        this.channel.on("new_message", this.got_msg.bind(this))
+    }
 
-        this.room_channel.on("new_message", this.got_msg.bind(this))
+    join_success(view) {
+        this.got_view(view)
+        this.after_join()
+    }
+
+    after_join() {
+        //to notify all other users of join
+        this.channel.push("notify", {})
+            .receive("ok", this.got_view.bind(this));
     }
 
     got_view(view) {
@@ -44,8 +47,8 @@ class Starter extends React.Component {
         this.setState({game: view.game});
     }
 
-    got_msg(view) {
-        console.log("new view", view.msg);
+    got_msg(view) {//[player_name,"msg"]
+        console.log("new msg")
         this.setState({
             msgs: this.state.msgs.concat(view.msg)
         })
@@ -57,8 +60,7 @@ class Starter extends React.Component {
     }
 
     handleChatBtnClick() {
-        this.room_channel.push("chat", {msg: document.getElementById("input-msg").value})
-
+        this.channel.push("chat", {msg: document.getElementById("input-msg").value})
     }
 
     handleMove(event, your_turn) {
@@ -114,12 +116,14 @@ class Starter extends React.Component {
         return {row_id, col_id}
     }
 
-    renderCompletedBoxes(boxes, rows, cols, images) {
+    renderCompletedBoxes(boxes, rows, cols, user_imgs) {
         // TODO
         let rects = []
         let that = this
         _.forEach(boxes, function (val, key) {
             _(val).each(function (sq_cords) {
+                let image = new Image()
+                image.src = user_imgs[key]
                 let {row_id, col_id} = that.getPositionCordinate(sq_cords[0], rows, cols)
                 //Reference https://konvajs.org/docs/react/Shapes.html
                 rects.push(<Rect
@@ -127,7 +131,7 @@ class Starter extends React.Component {
                         y={50 * row_id}
                         width={50}
                         height={50}
-                        fillPatternImage={images[key]}
+                        fillPatternImage={image}
                         fillPatternScale={{x: 0.5, y: 0.5}}
                         shadowBlur={10}
                     />
@@ -224,17 +228,11 @@ class Starter extends React.Component {
                 ind++
             }
         }
-        let images = []
-        _.each([...Array(4).keys()], function (key) {
-            let image = new Image()
-            image.src = user_imgs[key]
-            images.push(image)
-        })
         return (
             <div className="board">
                 <Stage className="offset-3" onMouseMove={(e) => this.handleMove(e, your_turn)} width={512} height={452}>
                     <Layer>
-                        {this.renderCompletedBoxes(game.boxes, game.rows, game.cols, images)}
+                        {this.renderCompletedBoxes(game.boxes, game.rows, game.cols, user_imgs)}
                         {this.renderConnectedLines(game.dots, game.rows, game.cols)}
                         {this.renderConnnectingLine()}
                         {rows}
@@ -301,6 +299,8 @@ class Starter extends React.Component {
                 <span className="navbar-brand mb-0 h1">DOTS AND BOXES</span>
                 <span className="navbar-text">
                   Game name : {this.props.game_name}
+                    <br/>
+                  Hosted by : {this.state.game.game_config.players[0]}
                     <br/>
                     {_.includes(this.state.game.game_config.players, player_name)
                         ? "Playing as " + player_name : "Spectating as " + player_name}
