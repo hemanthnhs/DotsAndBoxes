@@ -18,6 +18,8 @@ defmodule DotsAndBoxesWeb.Router do
 
     get "/", PageController, :index
     post "/game/", PageController, :game
+    get "/game/:name", PageController, :index
+
   end
 
   # Other scopes may use custom stacks.

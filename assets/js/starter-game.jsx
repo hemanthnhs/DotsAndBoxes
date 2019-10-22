@@ -47,7 +47,7 @@ class Starter extends React.Component {
         this.setState({game: view.game});
     }
 
-    got_msg(view) {
+    got_msg(view) {//[player_name,"msg"]
         console.log("new msg")
         this.setState({
             msgs: this.state.msgs.concat(view.msg)
@@ -299,6 +299,8 @@ class Starter extends React.Component {
                 <span className="navbar-brand mb-0 h1">DOTS AND BOXES</span>
                 <span className="navbar-text">
                   Game name : {this.props.game_name}
+                    <br/>
+                  Hosted by : {this.state.game.game_config.players[0]}
                     <br/>
                     {_.includes(this.state.game.game_config.players, player_name)
                         ? "Playing as " + player_name : "Spectating as " + player_name}

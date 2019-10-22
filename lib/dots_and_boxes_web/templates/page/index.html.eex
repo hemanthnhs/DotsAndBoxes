@@ -5,7 +5,12 @@
 <%= form_for @conn, "/game/", fn f -> %>
 <div class="col-5">
   <label>
+    <%= if(@game_name) do %>
+    Game name : <%= text_input f, :display_name, class: "form-control", value: @game_name , disabled: true %>
+    <%= text_input f, :game_name, class: "form-control", value: @game_name , hidden: true %>
+    <% else %>
     Game name : <%= text_input f, :game_name, class: "form-control" %>
+    <% end %>
   </label>
   </div>
   <div class="col-5">
