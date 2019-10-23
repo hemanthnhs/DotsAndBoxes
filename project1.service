@@ -1,0 +1,16 @@
+[Unit]
+Description=Dots And Boxes
+
+[Service]
+Type=simple
+User=dots_and_boxes
+Group=dots_and_boxes
+Restart=on-failure
+Environment=MIX_ENV=prod "PORT=4793"
+Environment=LANG=en_US.UTF-8
+
+WorkingDirectory=/home/dots_and_boxes/DotsAndBoxes
+ExecStart=bash /home/dots_and_boxes/DotsAndBoxes/start.sh
+
+[Install]
+WantedBy=multi-user.target
