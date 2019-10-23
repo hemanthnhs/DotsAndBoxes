@@ -57,4 +57,12 @@ config :logger, level: :info
 
 # Finally import the config/prod.secret.exs which loads secrets
 # and configuration from environment variables.
-import_config "prod.secret.exs"
+path = Path.expand("~/.config/dots_and_boxes.secret")
+unless File.exists?(path) do
+  secret = Base.encode16(:crypto.strong_rand_bytes(32))
+  File.write!(path, secret)
+end
+secret = File.read!(path)
+
+config :dots_and_boxes, DotsAndBoxesWeb.Endpoint,
+  secret_key_base: secret
