@@ -45,6 +45,10 @@ defmodule DotsAndBoxes.GameServer do
     GenServer.call(reg(name), {:begin_game, name})
   end
 
+  def restart_game(name) do
+    GenServer.call(reg(name), {:restart_game, name})
+  end
+
   def handle_call({:select, name, dot_id, player_name}, _from, game) do
     is_curr_player = DotsAndBoxes.Game.is_current_player(game, player_name)
     if is_curr_player do
@@ -71,4 +75,14 @@ defmodule DotsAndBoxes.GameServer do
     DotsAndBoxes.BackupAgent.put(name, game)
     {:reply, game, game}
   end
+
+  def handle_call({:restart_game, name}, _from, game) do
+    players = game.game_config.players
+    spectate = game.game_config.spectate
+    game = DotsAndBoxes.Game.new(game.rows,game.cols,game.game_config.num_of_players)
+    game = DotsAndBoxes.Game.after_restart(game, players, spectate)
+    DotsAndBoxes.BackupAgent.put(name, game)
+    {:reply, game, game}
+  end
+
 end

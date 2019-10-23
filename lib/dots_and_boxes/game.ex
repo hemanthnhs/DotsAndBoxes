@@ -130,6 +130,12 @@ defmodule DotsAndBoxes.Game do
     %{game | game_config: game_config}
   end
 
+  def after_restart(game, players, spectate) do
+    game_config = game.game_config
+    game_config = %{game_config | players: players, spectate: spectate}
+    %{game | game_config: game_config}
+  end
+
   def select(game, dot_id) do
     #    4 Conditions
     #    1. No active

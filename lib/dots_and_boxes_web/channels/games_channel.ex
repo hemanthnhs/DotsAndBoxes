@@ -46,6 +46,14 @@ defmodule DotsAndBoxesWeb.GamesChannel do
   def handle_in("begin_game", payload, socket) do
     name = socket.assigns[:name]
     game = GameServer.begin_game(name)
+    broadcast!(socket, "update", %{"game" => Game.client_view(game)})
+    {:reply, {:ok, %{"game" => Game.client_view(game)}}, socket}
+  end
+
+  def handle_in("restart_game", payload, socket) do
+    name = socket.assigns[:name]
+    game = GameServer.restart_game(name)
+    broadcast!(socket, "update", %{"game" => Game.client_view(game)})
     {:reply, {:ok, %{"game" => Game.client_view(game)}}, socket}
   end
 

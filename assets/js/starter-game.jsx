@@ -61,6 +61,11 @@ class Starter extends React.Component {
             .receive("ok", this.got_view.bind(this));
     }
 
+    handleRestartGame() {
+        this.channel.push("restart_game", {})
+            .receive("ok", this.got_view.bind(this));
+    }
+
     handleClick(ev, your_turn) {
         this.channel.push("select", {dot_id: ev.target.attrs.id})
             .receive("ok", this.got_view.bind(this), this.handleMove(ev, your_turn));
@@ -349,7 +354,7 @@ class Starter extends React.Component {
             {
                 winner.tie ? <div>Game has resulted a tie...Have a rematch!!!</div> : <div>{winner} has won</div>
             }
-            <button className="btn btn-primary">Restart game</button>
+            <button className="btn btn-primary" onClick={this.handleRestartGame.bind(this)}>Restart game</button>
         </div>)
     }
 
@@ -360,7 +365,7 @@ class Starter extends React.Component {
         let player_name = this.channel.socket.params().player_name
         let your_turn = (this.state.game.game_config.curr_player == player_name)
         let user_imgs = this.getUserImages()
-        let gameStarted = <div className="offset-1 col-6 container">
+        let gameStarted = <div className="offset-1 col-6">
             {this.renderBoard(game, your_turn, user_imgs)}
             {this.renderStatus(game, your_turn, user_imgs)}
         </div>
@@ -381,7 +386,7 @@ class Starter extends React.Component {
             <br/>
             <div className="row">
                 {game.game_config.start ? (this.state.game.game_config.winner ? this.renderGameOver(game.game_config.winner) : gameStarted) : waitingScreen}
-                <div className="col-3 container">
+                <div className="col-3 offset-1">
                     {this.renderChatArea(player_name)}
                 </div>
             </div>
