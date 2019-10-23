@@ -143,6 +143,15 @@ class Starter extends React.Component {
         });
     }
 
+    getPlayerScoreCards(game, user_imgs) {
+        let score_lists = []
+        _.each(this.state.game.game_config.players, function (e, ind) {
+            score_lists.push(<li key={ind + 1}><img className={"score-icons"} src={user_imgs[ind + 1]}/>{e} :
+                {game.scores[ind + 1]}</li>)
+        })
+        return score_lists
+    }
+
     renderCompletedBoxes(boxes, rows, cols, user_imgs) {
         // TODO
         let rects = []
@@ -269,14 +278,10 @@ class Starter extends React.Component {
     }
 
     renderStatus(game, your_turn, user_imgs) {
-        let score_lists = []
-        _.each(this.state.game.game_config.players, function (e, ind) {
-            score_lists.push(<li key={ind + 1}><img className={"score-icons"} src={user_imgs[ind + 1]}/>{e} :
-                {game.scores[ind + 1]}</li>)
-        })
+        let score_lists = this.getPlayerScoreCards(game, user_imgs)
+
         return (<div className="status card-group">
             <div className="scores col-8">
-                {/*<div className="font-weight-bold"><u>Scores</u></div>*/}
                 <ul>{score_lists}</ul>
             </div>
             <div className={"col-4 h3 " + ((your_turn) ? "turn-display-active" : "turn-display")}>
@@ -348,13 +353,23 @@ class Starter extends React.Component {
         }
     }
 
-    renderGameOver(winner) {
+    renderGameOver(game, user_imgs) {
+        let score_lists = this.getPlayerScoreCards(game, user_imgs)
+        let players = game.game_config.players
+        //TODO playername wen more ppl win
         return (<div className="offset-1 col-6 waiting-board">
             Game Over
             {
-                winner.tie ? <div>Game has resulted a tie...Have a rematch!!!</div> : <div>{winner} has won</div>
+                game.game_config.winner.tie ? <div>Game has resulted a tie...Have a rematch!!!</div> :
+                    game.game_config.winner.players_won.length == 1 ?
+                        <div> {players[game.game_config.winner.players_won[0] - 1]} has won</div> :
+                        <div>{game.game_config.winner.players_won.join(", ")} have won</div>
             }
             <button className="btn btn-primary" onClick={this.handleRestartGame.bind(this)}>Restart game</button>
+            <div className="scores col-9">
+                Score Card
+                <ul>{score_lists}</ul>
+            </div>
         </div>)
     }
 
@@ -385,7 +400,7 @@ class Starter extends React.Component {
             </nav>
             <br/>
             <div className="row">
-                {game.game_config.start ? (this.state.game.game_config.winner ? this.renderGameOver(game.game_config.winner) : gameStarted) : waitingScreen}
+                {game.game_config.start ? (this.state.game.game_config.winner ? this.renderGameOver(game, user_imgs) : gameStarted) : waitingScreen}
                 <div className="col-3 offset-1">
                     {this.renderChatArea(player_name)}
                 </div>
