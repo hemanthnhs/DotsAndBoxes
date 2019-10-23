@@ -21,13 +21,9 @@ defmodule DotsAndBoxes.Game do
     else
       if (len < game_config.num_of_players) do
         players = Map.put(players, len + 1, player_name)
-        if(len == game_config.num_of_players - 1) do
-          game_config = %{game_config | players: players, start: true}
-          %{game | game_config: game_config}
-        else
-          game_config = %{game_config | players: players}
-          %{game | game_config: game_config}
-        end
+        game_config = %{game_config | players: players}
+        %{game | game_config: game_config}
+
       else
         spectate = MapSet.put(spectate, player_name)
         game_config = %{game_config | spectate: spectate}
@@ -69,9 +65,13 @@ defmodule DotsAndBoxes.Game do
   end
 
   def update_game_complete(game_config, scores, rows, cols) do
-    if (Enum.sum(Map.values(scores) == (rows - 1) * (cols - 1))) do
+    if (Enum.sum(Map.values(scores)) == (rows - 1) * (cols - 1)) do
       # TODO winner condition
-      game_config
+      max_score = Enum.max(Map.values(scores))
+      winners =  for {k,v} <- scores, (v==max_score) do k end
+      len = map_size(game_config.players)
+      tie = length(winners)==len
+      %{game_config | winner: %{players_won: winners, tie: tie}}
     else
       game_config
     end
@@ -122,6 +122,12 @@ defmodule DotsAndBoxes.Game do
   def initialize_scores(num_of_players) do
     #Attribution https://inquisitivedeveloper.com/lwm-elixir-47/
     Map.new(1..num_of_players, fn n -> {n, 0} end)
+  end
+
+  def begin_game(game) do
+    game_config = game.game_config
+    game_config = %{game_config | start: true}
+    %{game | game_config: game_config}
   end
 
   def select(game, dot_id) do

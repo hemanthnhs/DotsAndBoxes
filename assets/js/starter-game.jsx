@@ -57,9 +57,8 @@ class Starter extends React.Component {
     }
 
     handleStartGame() {
-        console.log("game start")
-        // this.channel.push("start", {})
-        //     .receive("ok", this.got_view.bind(this));
+        this.channel.push("begin_game", {})
+            .receive("ok", this.got_view.bind(this));
     }
 
     handleClick(ev, your_turn) {
@@ -315,8 +314,8 @@ class Starter extends React.Component {
             <div className="offset-1 col-6 waiting-board"> Currently {connected_players} of {total_players} players
                 connected. You can start the game once all players join.
                 {invite_area}
-                <button className="btn btn-primary" onClick={this.handleStartGame}
-                        disabled={false/*connected_players != total_players*/}>Start game!!!
+                <button className="btn btn-primary" onClick={this.handleStartGame()}
+                        disabled={connected_players != total_players}>Start game!!!
                 </button>
             </div>
         )
@@ -329,7 +328,8 @@ class Starter extends React.Component {
             <div className="share-game">Please share the game name or following link to invite players to join or
                 spectate game
             </div>
-            <div><input className={"form-control offset-2 col-8"} readOnly={true} type="text" defaultValue={game_link}/></div>
+            <div><input className={"form-control offset-2 col-8"} readOnly={true} type="text" defaultValue={game_link}/>
+            </div>
         </div>
         if (host_name == player_name) {
             return this.renderHostArea(connected_players, total_players, invite_area)
@@ -341,6 +341,16 @@ class Starter extends React.Component {
                 {invite_area}
             </div>)
         }
+    }
+
+    renderGameOver(winner) {
+        return (<div className="offset-1 col-6 waiting-board">
+            Game Over
+            {
+                winner.tie ? <div>Game has resulted a tie...Have a rematch!!!</div> : <div>{winner} has won</div>
+            }
+            <button className="btn btn-primary">Restart game</button>
+        </div>)
     }
 
     render() {
@@ -370,7 +380,7 @@ class Starter extends React.Component {
             </nav>
             <br/>
             <div className="row">
-                {this.state.game.game_config.start ? gameStarted : waitingScreen}
+                {game.game_config.start ? (this.state.game.game_config.winner ? this.renderGameOver(game.game_config.winner) : gameStarted) : waitingScreen}
                 <div className="col-3 container">
                     {this.renderChatArea(player_name)}
                 </div>

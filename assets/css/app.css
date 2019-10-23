@@ -59,6 +59,7 @@
 }
 
 .status {
+    height: fit-content;
     border: 1px dashed #00000040;
     border-top: none;
     border-radius: 0px 0px 15px 15px;
@@ -69,20 +70,20 @@
     color: white;
     background-color: rgb(40, 40, 40);
     border-radius: 0px 0px 0px 10px;
-    height: 100px;
     /*text-align: center;*/
 }
 
 .turn-display, turn-display-active {
     background-color: #056f77d4;
     border-radius: 0px 0px 10px 0px;
-    height: 100px;
     text-align: center;
+    margin-bottom: 0px;
 }
 
 .turn-display-active {
     background-color: #bbd22bd4;
     color: white;
+    margin-bottom: 0px;
 }
 
 body {

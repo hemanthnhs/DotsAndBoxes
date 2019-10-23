@@ -1,6 +1,7 @@
 defmodule DotsAndBoxesWeb.GamesChannel do
   use DotsAndBoxesWeb, :channel
 
+
   alias DotsAndBoxes.Game
   alias DotsAndBoxes.BackupAgent
   alias DotsAndBoxes.GameServer
@@ -40,6 +41,12 @@ defmodule DotsAndBoxesWeb.GamesChannel do
     player_name = socket.assigns[:player_name]
     broadcast!(socket, "new_message", %{"player_name" => player_name, "msg" => msg})
     {:noreply, socket}
+  end
+
+  def handle_in("begin_game", payload, socket) do
+    name = socket.assigns[:name]
+    game = GameServer.begin_game(name)
+    {:reply, {:ok, %{"game" => Game.client_view(game)}}, socket}
   end
 
   # Add authorization logic here as required.
