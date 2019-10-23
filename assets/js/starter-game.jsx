@@ -314,7 +314,7 @@ class Starter extends React.Component {
             <div className="offset-1 col-6 waiting-board"> Currently {connected_players} of {total_players} players
                 connected. You can start the game once all players join.
                 {invite_area}
-                <button className="btn btn-primary" onClick={this.handleStartGame()}
+                <button className="btn btn-primary" onClick={this.handleStartGame.bind(this)}
                         disabled={connected_players != total_players}>Start game!!!
                 </button>
             </div>
