@@ -2,7 +2,7 @@
 @import "~bootstrap/dist/css/bootstrap.css";
 
 .chat-msgs {
-    height: 452px;
+    height: 380px;
     background-color: #d7d7d7;
     border-radius: 10px;
     margin-bottom: 25px;
@@ -43,6 +43,7 @@
     width: 512px;
     height: 512px;
     background-color: #525252;
+    padding-top: 8%;
     border-radius: 10px;
     box-shadow: 3px 2px #00000063;
     color: white;
@@ -70,7 +71,12 @@
     color: white;
     background-color: rgb(40, 40, 40);
     border-radius: 0px 0px 0px 10px;
-    /*text-align: center;*/
+}
+
+.final-scores{
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 15px;
 }
 
 .turn-display, turn-display-active {

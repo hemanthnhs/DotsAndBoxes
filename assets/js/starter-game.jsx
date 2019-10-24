@@ -366,8 +366,8 @@ class Starter extends React.Component {
                         <div>{game.game_config.winner.players_won.join(", ")} have won</div>
             }
             <button className="btn btn-primary" onClick={this.handleRestartGame.bind(this)}>Restart game</button>
-            <div className="scores col-9">
-                Score Card
+            <div className="scores final-scores">
+                Final Scores
                 <ul>{score_lists}</ul>
             </div>
         </div>)
