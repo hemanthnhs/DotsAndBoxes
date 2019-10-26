@@ -45,12 +45,10 @@ class Starter extends React.Component {
     }
 
     got_view(view) {
-        console.log("new view", view.game);
         this.setState({game: view.game});
     }
 
     got_msg(view) {//[player_name,"msg"]
-        console.log(view)
         this.setState({
             msgs: this.state.msgs.concat(view)
         })
