@@ -66,7 +66,6 @@ defmodule DotsAndBoxes.Game do
 
   def update_game_complete(game_config, scores, rows, cols) do
     if (Enum.sum(Map.values(scores)) == (rows - 1) * (cols - 1)) do
-      # TODO winner condition
       max_score = Enum.max(Map.values(scores))
       winners =  for {k,v} <- scores, (v==max_score) do k end
       len = map_size(game_config.players)
@@ -199,7 +198,6 @@ defmodule DotsAndBoxes.Game do
   end
 
   def check_and_create_boxes(game, player_id, curr_dot, prev_dot, dots, cols, boxes) do
-    # TODO one side of box already done
     current_boxes = Map.get(boxes, player_id)
     scores = game.scores
     if (abs(curr_dot - prev_dot) == 1) do

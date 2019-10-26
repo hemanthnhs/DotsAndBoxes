@@ -1,0 +1,43 @@
+
+Web Dev Spring 2018 Project 1 Status
+
+Answer the following questions:
+
+
+1. What are the names of the members of your team?
+Hemanth Sai Nimmala, Satya Sudheera Vytla
+
+
+2. What's the URL of the github repo with your code for this project?
+https://github.com/hemanthnhs/DotsAndBoxes
+
+
+3. What is the URL(s) that you deployed to?
+http://project1.cs5610f19.website/
+
+
+4. Is your app functionality complete? If not, what's missing?
+The app functionality is complete.
+
+
+5. Is your app properly deployed? If not, what went wrong?
+The app is properly deployed.
+
+
+6. What parts of the project did each team member work on?
+We contributed to tasks equally on both front end and backend.
+React components and server side boxes and adjacent dots
+was majorly contributed by Hemanth and React konva and Genserver
+was majorly contributed by Satya. We both involved in UI Design
+and designing the game structure and enhancement of gameplay.
+
+
+7. Are all your third-party assets appropriately licensed and credited?
+Yes all third party assets are properly licensed and credited in README.
+
+
+And here's a list of tasks for grading comments. Just leave this here:
+ - Development
+ - Deployment
+ - Submission
+ - Report

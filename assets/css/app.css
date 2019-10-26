@@ -77,6 +77,11 @@
     margin-top: 30px;
     padding: 20px;
     border-radius: 15px;
+    text-align: start;
+}
+
+.final-scores-head{
+    text-align: center;
 }
 
 .turn-display, turn-display-active {

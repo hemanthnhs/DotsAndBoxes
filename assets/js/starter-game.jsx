@@ -153,7 +153,6 @@ class Starter extends React.Component {
     }
 
     renderCompletedBoxes(boxes, rows, cols, user_imgs) {
-        // TODO
         let rects = []
         let that = this
         _.forEach(boxes, function (val, key) {
@@ -356,7 +355,6 @@ class Starter extends React.Component {
     renderGameOver(game, user_imgs) {
         let score_lists = this.getPlayerScoreCards(game, user_imgs)
         let players = game.game_config.players
-        //TODO playername wen more ppl win
         return (<div className="offset-1 col-6 waiting-board">
             Game Over
             {
@@ -367,7 +365,7 @@ class Starter extends React.Component {
             }
             <button className="btn btn-primary" onClick={this.handleRestartGame.bind(this)}>Restart game</button>
             <div className="scores final-scores">
-                Final Scores
+                <div className="final-scores-head">Final Scores</div>
                 <ul>{score_lists}</ul>
             </div>
         </div>)
