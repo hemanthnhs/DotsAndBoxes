@@ -1,4 +1,4 @@
-DOTS AND BOXES
+﻿DOTS AND BOXES
 
 Authors : Hemanth Sai Nimmala, Satya Sudheera Vytla
 
@@ -29,7 +29,8 @@ host throughout the game. Once the host joins the created game, a link
 will be provided to invite the rest of the players to join the game.
 The players can join the game using the link or the game name and when
 the required number of players join the game, the host can start the
-game. Once the required number of players join the game, any number of
+game. 
+Once the required number of players join the game, any number of
 spectators can join the game using the same link or the game name to
 watch the players play the game. While we are restricting the number
 of players who can play the game, there can be any number of
@@ -55,7 +56,9 @@ disabled for the host. Once all the players join in, the host can
 start the game. Few details such as the name of the game, the name of
 the game host and the player’s name is displayed in the NavBar on top
 of the screen. The screen has two major areas - play area and a chat
-area. In the play area, we made use of React-Konva to draw the dots
+area. 
+
+In the play area, we made use of React-Konva to draw the dots
 and let players draw lines to connect the unconnected dots. To enhance
 user experience, we used various colors to differentiate between the
 selected dot by the player to connect and its adjacent possible dots
@@ -142,13 +145,16 @@ an id which becomes a key in the Map. The value mapped to each key is
 in turn a list data structure which holds all the Dot IDs the key dot
 is connected to. This way when the player attempts to make a
 connection between dots, we can always look up if the connection is
-already made or not. Similarly, a map is used to keep track of the
+already made or not. 
+
+Similarly, a map is used to keep track of the
 boxes completed by each player. The key is the player id and the value
 is a list of dots that are joined to form the box. When a player
 clicks on a dot to start connecting it with another, we show the
 player what are the valid connections possible using few colors. To
 achieve this, a list is maintained to only track completed dots. The
 lookup would become easier to check which dots are left unconnected.
+
 To maintain the scores of each player, a map is used where the key is
 the player ID and the value is the score gained by the player. Some
 data related to game configuration such as number of rows and columns
@@ -170,16 +176,20 @@ information is stored in game_config map object which is nested in the
 game state. The reason to nest this inside the game state is that when
 the player chooses to restart the game we can create a new game object
 with the rows, columns details and use the same list of players,
-spectators as in game_config map.  Implementation of game rules All
-the rules and requirements are well established for the game. The game
+spectators as in game_config map.  
+
+Implementation of game rules 
+
+All the rules and requirements are well established for the game. The game
 enforces a minimum of two players and allows up to four players. This
 rule is implemented by providing the user with a drop down to pick
 from the available options.To begin the game, along with the players
 there needs to be a grid of unconnected dots. The grid size cannot go
 less than 3X3 dimensional grid size and we support up to 8X8
 dimensional grid of dots by providing the user with a drop down to
-pick from the available options.  The game works as follows : When the
-player clicks on a dot, the server computes what are the valid
+pick from the available options.  
+The game works as follows : 
+When the player clicks on a dot, the server computes what are the valid
 connections possible from the dot clicked by computing its adjacent
 unconnected dots, updates the game state and communicates back to the
 UI to display for the user.
