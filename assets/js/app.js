@@ -23,7 +23,7 @@ $(() => {
     let root = document.getElementById('root');
     if (root) {
         let game_name = window.gameName
-        let channel = socket.channel("games:" + game_name, {player_name: window.playerName});
+        let channel = socket.channel("games:" + game_name, {});
         game_init(root, channel, game_name);
     }
 });
