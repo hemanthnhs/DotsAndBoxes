@@ -1,8 +1,6 @@
-#DOTS AND BOXES
+# DOTS AND BOXES
 
-Authors: Hemanth Sai Nimmala, Satya Sudheera Vytla
-
-The game is developed as a part of CS5610 - Web Development
+The game is developed as a part of CS5610 - Web Development Course
 
 ## Media Assets
 
